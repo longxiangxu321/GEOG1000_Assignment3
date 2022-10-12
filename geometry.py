@@ -43,7 +43,7 @@ class Point(object):
             else:
                 return False
         elif type(other) == Rectangle:
-            if self.x >= other.ll.x and self.y <= other.ur.y:
+            if (other.ll.x <= self.x <= other.ur.x) and (other.ur.y >= self.y >= other.ll.y):
                 return True
             else:
                 return False
@@ -61,7 +61,7 @@ class Circle(object):
         """Constructor. 
         Takes the center point and radius defining the Circle.
         """
-        assert radius > 0
+        assert float(radius) > 0
         assert isinstance(center, Point)
         self.center = center
         self.radius = float(radius)
@@ -146,26 +146,23 @@ class Rectangle(object):
         if type(other) == Point or type(other) == Circle:
             return other.intersects(self)
         elif type(other) == Rectangle:
-            new_ll, new_ur = Point()
-            new_ll.x = self.ll.x - other.width
-            new_ll.y = self.ll.y - other.height
-
+            new_ll = Point(self.ll.x - other.width(), self.ll.y - other.height())
             new_rectangle = Rectangle(new_ll, self.ur)
-            return other.ll.intersect(new_rectangle)
+            return other.ll.intersects(new_rectangle)
 
     def width(self):
         """Returns the width of the Rectangle.
         
         Returns - float
         """
-        return math.fabs(self.ll.x - self.ur.x)
+        return float(math.fabs(self.ll.x - self.ur.x))
 
     def height(self):
         """Returns the height of the Rectangle.
         
         Returns - float
         """
-        return math.fabs(self.ll.y - self.ur.y)
+        return float(math.fabs(self.ll.y - self.ur.y))
 
 def _test():
     """Test whether your implementation of all methods works correctly.

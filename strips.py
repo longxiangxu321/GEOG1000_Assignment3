@@ -24,16 +24,13 @@ class StripStructure(object):
         # Extend this method,
         # so that the right number of strip objects (with the correct extent)
         # are appended to the strips list
-        width = extent.width() / no_strips
-        height = extent.height() / no_strips
-        for i in range(no_strips):
-            ll = extent.ll
-            ll.x += i * width
-            ur = ll
-            ur.x += width
-            ur.y += height
-            strip = Strip(Rectangle(ll, ur))
-            self.strips.append(strip)
+        width = (extent[2] - extent[0]) / no_strips
+
+        for i in range(0, no_strips):
+            pt_ll = Point((extent[0] + i * width), extent[1])
+            pt_ur = Point((extent[0] + (i + 1) * width), extent[3])
+            temp = Strip(Rectangle(pt_ll, pt_ur))
+            self.strips.append(temp)
 
     def find_overlapping_strips(self, shape):
         """Returns a list of strip objects for which their rectangle intersects 
@@ -41,11 +38,12 @@ class StripStructure(object):
         
         Returns - list of Strips
         """
-        overlapping_strips = []
+        temp = []
         for strip in self.strips:
-            if strip.interset(shape):
-                overlapping_strips.append(strip)
-        return overlapping_strips
+            if strip.rect.intersects(shape):
+                temp.append(strip)
+            # breakpoint()
+        return temp
 
     def query(self, shape):
         """Returns a list of points that overlaps the given shape.
@@ -58,8 +56,14 @@ class StripStructure(object):
         
         Returns - list of Points
         """
+        overlapping_strips = self.find_overlapping_strips(shape)
+        overlapping_points = []
 
-
+        for strip in overlapping_strips:
+            for point in strip.points:
+                if point.intersects(shape):
+                    overlapping_points.append(point)
+        return overlapping_points
 
     def append_point(self, pt):
         """Appends a point object to the list of points of the correct strip
@@ -73,10 +77,11 @@ class StripStructure(object):
         
         Returns - None
         """
-        for strip in self.strips:
-            if pt.insterset(strip):
-                strip.points.append(pt)
 
+        for i in range(0, len(self.strips)):
+            if pt.intersects(self.strips[i].rect):
+                self.strips[i].points.append(pt)
+                break
 
 
     def print_strip_statistics(self):
@@ -91,7 +96,16 @@ class StripStructure(object):
         
         Returns - None
         """
-        pass
+        print("{} strips".format(len(self.strips)))
+        for strip in self.strips:
+            print("#{} with {} points, ll: POINT ({} {}), ur: POINT ({} {})".format(
+                self.strips.index(strip),
+                len(strip.points),
+                strip.rect.ll.x,
+                strip.rect.ll.y,
+                strip.rect.ur.x,
+                strip.rect.ur.y
+            ))
 
     def dumps_strips(self):
         """Dumps the strips of this structure to a str, 
@@ -101,7 +115,7 @@ class StripStructure(object):
         Returns - str
         """
         lines = "strip;wkt\n"
-        for i, strip in enumerate(self.strips, start = 1):
+        for i, strip in enumerate(self.strips, start=1):
             t = "{0};{1}\n".format(i, strip.rect)
             lines += t
         return lines
@@ -114,9 +128,8 @@ class StripStructure(object):
         Returns - str
         """
         lines = "strip;wkt\n"
-        for i, strip in enumerate(self.strips, start = 1):
+        for i, strip in enumerate(self.strips, start=1):
             for pt in strip.points:
                 t = "{0};{1}\n".format(i, pt)
                 lines += t
         return lines
-

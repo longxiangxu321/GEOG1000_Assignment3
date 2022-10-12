@@ -16,7 +16,27 @@ def read(file_nm, no_strips):
     
     Returns - None or a StripStructure instance
     """
-    pass
+    objects = []
+
+    with open(file_nm) as f:
+        for line in f:
+            if line[0] != "#":
+                string_list = line.split()
+                float_list = []
+                for item in string_list:
+                    float_list.append(float(item))
+                objects.append(float_list)
+
+    extent = [objects[0][0], objects[0][1], objects[0][2], objects[0][3]]
+    if extent[0] < extent[2] and extent[1] < extent[3]:
+        structure = StripStructure(extent, no_strips)
+        for i in range(1, len(objects)):
+            point = Point(objects[i][0], objects[i][1])
+            structure.append_point(point)
+        # breakpoint()
+        return structure
+    else:
+        return None
 
 
 def dump(structure, strip_file_nm="strips.wkt", point_file_nm="points.wkt"):

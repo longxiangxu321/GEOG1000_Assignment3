@@ -38,8 +38,22 @@ def print_statistics(result):
     
     Returns - None
     """
-    pass
+    points = []
+    for point in result:
+        a_point = []
+        a_point.append(point.x)
+        a_point.append(point.y)
+        a_point.append(id(point))
+        points.append(a_point)
 
+    leftmost = min(points)
+    rightmost = max(points)
+    print("+--------------+")
+    print("+     Result   +")
+    print("+--------------+")
+    print("{} point(s)".format(len(result)))
+    print("leftmost: POINT ({} {}) id: {}".format(leftmost[0], leftmost[1], leftmost[2]))
+    print("rightmost: POINT ({} {}) id: {}".format(rightmost[0],rightmost[1], rightmost[2]))
 
 def print_help():
     """Prints a help message to the user, what can be done with the program.
